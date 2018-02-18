@@ -1,0 +1,284 @@
+{% extends "base.html" %} 
+{% block title %}{{thought.title}}{% endblock %}
+{% block css %}
+{% include "main/css.html" %}
+{% endblock %}
+
+{% block content %}
+<script src="{{url_for('static',filename='emoji/code/jquery.emoticons.js')}}"></script>
+
+
+<div class="row">
+	<div class="col-lg-3 col-xs-12">
+		<div class="panel panel-default card-view  pa-0">
+			<div class="panel-wrapper collapse in">
+				<div class="panel-body  pa-0">
+					<div class="profile-box">
+						<div class="profile-cover-pic">
+						<div class="profile-info text-center"></div>
+						</div>
+						<div class="profile-info text-center">
+							<div class="profile-img-wrap">
+								<img class="inline-block mb-10" src="{{author.imgurl}}" alt="user">
+							</div>	
+							<h5 class="block mt-10 mb-5 weight-500 capitalize-font txt-danger">{{author.username}}</h5>
+						</div>	
+						<div class="social-info">
+							<div class="row">
+								<div class="col-xs-12 text-center">
+									<span class="counts block head-font"><span class="counter-anim">{{sharenumber}}</span></span>
+									<span class="counts-text block">分享的想法</span>
+								</div>
+							</div>						
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-9 col-xs-12">
+		<div class="panel panel-default card-view panel-refresh">
+			<div class="refresh-container" style="display: none;">
+				<div class="la-anim-1"></div>
+			</div>
+			<div class="panel-heading">
+				<div class="pull-left">
+					<h6 class="panel-title txt-dark">{{thought.title}}</h6>
+				</div>
+				<div class="pull-right">
+					<a class="pull-left inline-block mr-15" data-toggle="collapse" href="#collapse_1" aria-expanded="true">
+						<i class="zmdi zmdi-chevron-down"></i>
+						<i class="zmdi zmdi-chevron-up"></i>
+					</a>
+					<a href="#" class="pull-left inline-block full-screen mr-15">
+						<i class="zmdi zmdi-fullscreen"></i>
+					</a>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+			<div id="collapse_1" class="panel-wrapper collapse in" aria-expanded="true" style="">
+				<div class="panel-body">
+					<p id='thought_detail'></p>
+					<script type="text/javascript">
+						$.emoticons({
+							'activeCls':'trigger-active'
+						},function(api){							
+						$('#thought_detail').html(api.format("{{thought.detail}}"));												
+						});
+					</script>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-9 col-xs-12">
+		<div class="panel panel-default border-panel card-view pa-0">				
+			<div class="recent-chat-box-wrap">
+				<div class="recent-chat-wrap">
+					<div class="panel-wrapper collapse in">							
+						<div class="chat-content">
+							<div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 483px;">
+							<ul class="chatapp-chat-nicescroll-bar pt-20" style="overflow: auto; width: auto; height: 483px;">
+								{% if comments %}
+									{% for comment in comments %}
+										{% if comment.answer_id == comment.author_id %}
+											<li class="self mb-10">
+											<div class="self-msg-wrap">
+											<div class="msg block pull-right"> 													
+										{% else %}
+											<li class="friend">
+											<div class="friend-msg-wrap">
+											<img class="user-img img-circle block pull-left" id='answer_pic{{comment.id}}' src="dist/img/user.png" alt="user">
+											<script type="text/javascript">												
+												$.ajax({
+													url:'/showhead',
+													data:{
+														'answer_id':'{{comment.answer_id}}'
+													},
+													success:function(response){															
+														$("#answer_pic{{comment.id}}").attr("src",response);
+													}
+												})												
+											</script>
+											<div class="msg pull-left">													
+										{% endif %}
+												<p id='result{{comment.id}}'></p>
+												<!-- 动态加载评论 -->
+												<script type="text/javascript">
+													$.emoticons({
+														'activeCls':'trigger-active'
+													},function(api){							
+													$('#result{{comment.id}}').html(api.format("{{comment.answer}}"));												
+													});
+												</script>
+												<div class="msg-per-detail text-right">
+													<span class="msg-time txt-grey">{{comment.time}}</span>
+												</div>
+											</div>
+											<div class="clearfix"></div>
+											</div>	
+											</li>
+									{% endfor  %}
+								{% endif %}
+							</ul>
+						</div>
+
+						<div class="emoticons">
+							<div class="publisher">
+								<p><textarea name="content" id='comment'></textarea></p>
+								<p><a class="trigger" href="javascript:;">☺</a></p>
+							</div>	
+							<!-- 调用表情						 -->
+							<script type="text/javascript">
+								$.emoticons({
+									'activeCls':'trigger-active'
+								});
+							</script>   
+						</div>	
+
+					</div>
+				</div>
+			</div>			
+		</div>
+	</div>
+
+</div>
+
+<style type="text/css">
+	.emoticons{
+		width: 525px;
+		margin-bottom:20px;
+	}
+	.emoticons .publisher{
+		width: 855px;
+		padding-bottom: 10px;
+		margin-bottom: 10px;
+		border-bottom: 1px dotted #dbdbdb;
+	}
+	.emoticons .publisher textarea{
+		width: 855px;
+		height: 140px;
+		padding: 5px 10px;
+		border: 1px solid #dbdbdb;
+		resize: none;
+	}
+	.emoticons .publisher .trigger{
+		font-size: 24px;
+		font-weight: bold;
+		color: #666;
+	}
+	.emoticons .publisher .trigger-active{
+		color: #eb7350;
+	}
+	.widget-layer{
+		position: relative;
+		width: 410px;
+		margin-top: 8px;
+		background: #fff;
+		border: 1px solid #dbdbdb;
+		border-radius: 2px;
+	}
+	.widget-layer:before{
+		position: absolute;
+		top: -16px;
+		left: 2px;
+		display: block;
+		content: '';
+		width: 0;
+		height: 0;
+		border: 8px solid transparent;
+		border-bottom-color: #dbdbdb;
+	}
+	.widget-layer:after{
+		position: absolute;
+		top: -15px;
+		left: 2px;
+		display: block;
+		content: '';
+		width: 0;
+		height: 0;
+		border: 8px solid transparent;
+		border-bottom-color: #f0f0f0;
+	}
+	.widget-layer .widget-tool{
+		height: 28px;
+		background: #f0f0f0;
+	}
+	.widget-layer .widget-close{
+		float: right;
+		width: 28px;
+		height: 28px;
+		line-height: 28px;
+		text-align: center;
+		font-family: Arial;
+	}
+	.widget-layer ul{
+		width: 372px;
+		margin: 0 auto;
+		padding: 15px 5px 20px;
+		overflow: hidden;
+	}
+	.widget-layer li{
+		position: relative;
+		z-index: 8;
+		float: left;
+		width: 22px;
+		height: 22px;
+		padding: 4px;
+		margin-left: -1px;
+		margin-top: -1px;
+		border: 1px solid #e8e8e8;
+		cursor: pointer;
+	}
+	.widget-layer li:hover{
+		z-index: 9;
+		border-color: #eb7350;
+	}
+</style>
+<style type="text/css">
+	.sharetitle{
+		font-size:24px;
+		padding: 5px;
+		margin-left: 10px;
+		color: #000;
+		font-weight: bold;
+	}
+	.sharedetail{
+		font-size:16px;
+		padding: 10px;
+	}
+</style>
+
+<script type="text/javascript">
+	$(function(){
+		$('#comment').bind('keypress',function(event){
+			if(event.keyCode == 13){
+				if ($('#comment').val() !='') {
+					$.ajax({
+						url:'/commit',
+						data:{
+							'answer':$('#comment').val(),
+							'thought_id':'{{thought.id}}',
+							'answer_id':'{{current_user.id}}',
+							'author_id':'{{thought.user_id}}',
+						},
+						success:function(response){
+							window.location.reload();
+						}
+					})
+					document.getElementById("comment").value=""
+				}else{
+					alert("请输入评论")
+				}
+			}
+		});
+	})
+</script>
+
+{% endblock %}
+
+
+{% block js %}
+{% include "main/js.html" %}
+{% endblock %}

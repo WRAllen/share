@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="Share" content="hencework"/>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">    
+    <script src="{{ url_for('static',filename='vendors/bower_components/jquery/dist/jquery.min.js') }}"></script>
+    {% block css %}{% endblock %}
+
+</head>
+
+<body>
+    <!-- Preloader -->
+    <div class="preloader-it">
+        <div class="la-anim-1"></div>
+    </div>
+    <!-- /Preloader -->
+    <div class="wrapper theme-1-active pimary-color-red">
+        <!-- Top Menu Items -->
+        {% include "up.html" %}
+        <!-- /Top Menu Items -->
+        
+        <!-- Left Sidebar Menu -->
+        {% include "left.html" %}
+        <!-- /Left Sidebar Menu -->
+        
+        <!-- Right Sidebar Menu -->
+        {% include "right.html" %}
+        <!-- /Right Sidebar Menu -->
+        
+        
+
+        <!-- Main Content -->
+        <div class="page-wrapper">
+            <div class="container-fluid pt-25">
+                
+                <!-- Row -->
+               {% block content %}{% endblock %}
+                <!-- /Row -->
+            </div>            
+            
+        </div>
+        <!-- /Main Content -->
+
+    </div>
+    <!-- /#wrapper -->
+    
+    <!-- JavaScript -->
+    {% block js %}{% endblock %}
+    <!-- /JavaScript -->
+</body>
+
+</html>

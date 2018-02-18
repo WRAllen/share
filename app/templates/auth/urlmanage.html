@@ -1,0 +1,403 @@
+{% extends "base.html" %}                                              
+{% block title %}资源管理{% endblock %}
+{% block css %}
+{% include "auth/css.html" %}
+{% endblock %}
+
+{% block js %}
+{% include "auth/js.html" %}
+{% endblock %}
+
+
+{% block content %}
+<style type="text/css">
+	.pull-left{float: left;padding:0 0 0 10px;}
+	#update_menu_div{display: none;}
+	#btn_add{
+		margin-left: 10px;
+	}
+	#btn_add_menu{height: 38px;margin-left: 10px;}
+	#sel_menu{height: 30px;}
+	#update_menu{
+		margin: 0 10px;
+	}
+	#datable_1 th{
+		text-align: center;
+	}
+</style>
+
+
+
+<div class="row">
+	<div class="col-sm-12">
+		<div class="panel panel-default card-view">
+			<div class="panel-heading">
+				<div class="pull-left">
+					<h6 class="panel-title txt-dark" style="line-height: 2.2;font-size: 18px;">资源管理</h6>
+				</div>
+				<div class="pull-left"> 
+                <button  class="btn  btn-success btn-sm" data-toggle="modal" data-target="#myModal" id="btn_add">添加</button>
+            	</div>
+            	<div class="pull-left">
+            	<button class="btn btn-default btn-icon-anim btn-square" data-toggle="modal" data-target="#Menu" id="btn_add_menu"><i class="fa fa-pencil"></i></button>
+            	</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+			<div class="panel-wrapper collapse in panel panel-default card-view">
+				<div class="panel-body">
+					<div class="table-wrap">
+						<div class="table-responsive">
+							<table id="datable_1" class="table table-hover display  pb-30" >
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>名字</th>
+										<th>分类</th>
+										<th>操作</th>
+									</tr>
+								</thead>
+								<tbody>
+								{% for url in allurl %}
+									<tr>
+										<th>{{url.id}}</th>
+										<th>{{url.name}}</th>
+										<th>{{url.menus[0].name}}</th>
+										<th>
+											<button id='btn{{url.id}}' class="btn btn-default btn-block btn-outline btn-anim mt-30" data-toggle="modal" data-target="#myModal{{url.id}}" style="padding: 5px;width: 70px;margin-top: 0 !important;float: left;margin-right: 15px;    margin-left: 36%;">
+												<i  class="fa fa-pencil"></i>
+													<span class="btn-text">修改</span>
+											</button>
+											<button id='del{{url.id}}' class="btn btn-default btn-block btn-outline btn-anim mt-30" style="padding: 5px;width: 70px;margin-top: 0 !important;">
+												<i class="fa fa-trash-o"></i>
+													<span class="btn-text">删除</span>
+											</button>
+											<div id="myModal{{url.id}}" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+												<div class="modal-dialog">
+													<div class="modal-content">
+														<div class="modal-header">
+															<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+															<h5 class="modal-title" id="myModalLabel">资源编辑</h5>
+														</div>
+														<div class="modal-body">
+															<div class="col-lg-12">
+																<div class="panel-wrapper collapse in">
+																	<div class="panel-body pa-0">
+																		<div class="col-sm-12 col-xs-12">
+																			<div class="form-wrap">
+																				<form action="#">
+																					<div class="form-body overflow-hide">
+																						<div class="form-group">
+																							<label>资源</label>
+																							<div style="margin-bottom: 10px">
+																								角色名:<input type="text" id="nam_{{url.id}}" value="{{url.name}}">																						
+																							</div>
+																							<div>
+																								蓝图名:<input type="text" id="func_{{url.id}}" value="{{url.url_func}}" disabled="disabled">
+																							</div>
+																						</div>																				
+																						<div class="form-group">
+																							<label>类别</label>
+																							<select id="sel_{{url.id}}">
+																			                    {% for menu in allmenu %}
+																			                        <option  id="men_{{menu.id}}">{{menu.name}}</option>
+																			                    {% endfor %}
+																			                </select>
+																						</div>
+																					</div>			
+																				</form>																				
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-success waves-effect" id='submit{{url.id}}'>保存</button>
+														<button type="button" class="btn btn-default waves-effect" data-dismiss="modal">取消</button>
+													</div>
+												</div>
+											</div>
+										</th>
+									</tr>
+									<script type="text/javascript">
+										$(function(){					
+											$('#sel_{{url.id}}').val('{{url.menus[0].name}}')
+											
+											$("#submit{{url.id}}").click(function(){
+												$.ajax({
+									                url:'updateurlmenu',
+									                method:'GET',
+									                data:{
+									                	"now_url_menu":$('#sel_{{url.id}} option:selected').val(),
+									                	"now_url_name":$('#nam_{{url.id}}').val(),
+									                	"url_id":"{{url.id}}",
+									            	},
+									                success:function(responce){
+									                    window.location.reload()     
+									                } 
+           										 });												
+											})
+
+											$("#del{{url.id}}").click(function(){
+												if (confirm("确认删除？")) {
+													$.ajax({
+									                    url:"/auth/deleteurl",
+									                    data:{
+									                        "url_id":'{{url.id}}',
+									                    },
+									                    success:function(response){
+									                        if (response=="success") {
+									                            window.location.href="/auth/urlmanage"             
+									                        }else{
+									                            alert("删除失败！")
+									                        }
+									                    }
+									                })
+												}
+											})
+										})
+									</script>
+								{% endfor %}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>
+
+
+<!-- 增加urldiv -->
+<div id="myModal" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h5 class="modal-title" id="myModalLabel">添加资源</h5>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="">
+							<div class="panel-wrapper collapse in">
+								<div class="panel-body pa-0">
+									<div class="col-sm-12 col-xs-12">
+										<div class="form-wrap">
+											<div class="form-body overflow-hide" style="margin-bottom: 20px;">
+												<input class="form-control" placeholder="请输入资源名" id="url_name">
+											</div>
+											<div class="form-body overflow-hide">
+												<input class="form-control" placeholder="请输入url_func" id="url_func">
+											</div>
+											<div class="modal-footer">
+											<button type="button" id="btn_sure" class="btn btn-success waves-effect">添加</button>
+											<button type="button" class="btn btn-default waves-effect" data-dismiss="modal">取消</button>
+											</div>											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+<!-- 管理菜单div -->
+<div id="Menu" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h5 class="modal-title" id="myModalLabel">菜单管理</h5>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="">
+							<div class="panel-wrapper collapse in">
+								<div class="panel-body pa-0">
+									<div class="col-sm-12 col-xs-12">
+										<div class="form-wrap">
+											<div class="form-group">
+												<label style="font-size: 16px;margin-left: 10px;">类别:</label>
+												<select id="sel_menu">
+								                    {% for menu in allmenu %}
+								                    	{% if menu.name != "未分类" %}
+								                        <option  id="men_{{menu.id}}">{{menu.name}}</option>
+								                    	{% endif %}
+								                    {% endfor %}
+								                </select>
+
+								                <button class="btn btn-default btn-icon-anim btn-circle" id = "update_menu"><i class="fa fa-pencil"></i>
+								                <button class="btn btn-default btn-icon-anim btn-circle" id = "del_menu"><i class="icon-trash"></i>								                												
+											</div>
+
+											<div class="form-body overflow-hide">
+												<input class="form-control" placeholder="请输入菜单名" id="menu_name">
+											</div>
+											<div class="modal-footer">
+											<button type="button" id="btn_addmenu" class="btn btn-success waves-effect">添加</button>
+											<button type="button" class="btn btn-default waves-effect" data-dismiss="modal">取消</button>
+											</div>											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+<!-- 更改菜单div -->
+<div id="update_menu_div" class="modal fade in" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div id="show_menu_name">					
+				</div>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="">
+							<div class="panel-wrapper collapse in">
+								<div class="panel-body pa-0">
+									<div class="col-sm-12 col-xs-12">
+										<div class="form-wrap">
+											<div class="form-body overflow-hide" style="margin-bottom: 20px;">
+												<input class="form-control" type="text" placeholder="请输入新的菜单名" id="update_menu_name">
+											</div>
+											<div class="modal-footer">
+											<button type="button" id="btn_upd_menu_submit" class="btn btn-success waves-effect">更改</button>
+											<button type="button" id="btn_upd_menu_cancer" class="btn btn-default waves-effect">取消</button>
+											</div>											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	$(function(){
+		// 添加url
+        $("#btn_sure").click(function(){
+        	if ($('#url_name').val()) {
+	        	$.ajax({
+				url:"/auth/addurl",
+					data:{
+						"url_name":$('#url_name').val(),
+						"url_func":$('#url_func').val(),
+			 		},
+					success:function(response){
+						if (response=="success") {
+	        				window.location.href="/auth/urlmanage"	        		
+	        			}else{
+	        				alert("该资源已存在！")
+	        			}
+	        		}
+	        	})
+        	}else{
+        		alert("请输入资源名！")
+        	} 
+        })
+
+        // 添加menu
+        $("#btn_addmenu").click(function(){
+        	if ($('#menu_name').val()) {
+	        	$.ajax({
+				url:"/auth/addmenu",
+					data:{
+						"menu_name":$('#menu_name').val(),
+			 		},
+					success:function(response){
+						if (response=="success") {
+	        				window.location.href="/auth/urlmanage"	        		
+	        			}else{
+	        				alert("该菜单已存在！")
+	        			}
+	        		}
+	        	})
+        	}else{
+        		alert("请输入菜单名！")
+        	} 
+        })
+
+        // 更改menu名字
+        $("#update_menu").click(function(){
+        	$('#Menu').hide()
+        	$("#show_menu_name").html("")
+        	$("#show_menu_name").append("<h5>当前菜单名为:"+$('#sel_menu option:selected').val()+"</h5>")
+        	$("#update_menu_div").show()
+        })
+
+        // 确认更改menu名字
+        $("#btn_upd_menu_submit").click(function(){
+        	if ($('#update_menu_name').val()) {
+	        	$.ajax({
+				url:"/auth/updatemenu",
+				data:{
+						"old_menu_name":$('#sel_menu option:selected').val(),
+						"new_menu_name":$('#update_menu_name').val(),
+			 		},
+					success:function(response){
+						if (response=="success") {
+	        				window.location.href="/auth/urlmanage"	       		
+	        			}else{
+	        				alert("修改失败！")
+	        			}
+	        		}
+	        	})
+        	}else{
+        		alert("请输入菜单名！")
+        	} 
+        })
+
+        // 取消menu div显示
+		$("#btn_upd_menu_cancer").click(function(){
+        	$("#update_menu_div").hide()
+        	$('#Menu').show()
+        })
+
+		// 删除menu
+        $("#del_menu").click(function(){
+        	if (confirm("确认删除？")) {
+				$.ajax({
+			        url:"/auth/deletemenu",
+			        data:{
+			            "menu_name":$('#sel_menu option:selected').val(),
+			        },
+			        success:function(response){
+			            if (response=="success") {
+			                window.location.href="/auth/urlmanage"             
+			            }else{
+			                alert("删除失败！")
+			            }
+			        }
+			    })
+		    }
+        })
+	})
+</script>
+
+{% endblock %}
+
