@@ -12,7 +12,14 @@ from datetime import datetime
 @main.route('/')
 @login_required
 def index():
-	return render_template('main/index.html')
+	user_id = request.args.get("user_id")
+	if user_id:
+		page = request.args.get('page', 1, type=int)
+		pagination = db.session.query(Thought.id, Thought.title, Thought.detail, Thought.label,Thought.zan, Thought.time).filter(Thought.user_id == user_id).paginate(page,per_page = 4) 
+		thoughts = pagination.items
+		return render_template('main/index.html',thoughts = thoughts, pagination = pagination)
+	else:
+		return render_template('main/index.html')
 
 @main.route('/show')
 @login_required
@@ -21,7 +28,7 @@ def show():
 	name = '%' + key + '%'
 
 	page = request.args.get('page', 1, type=int)
-	pagination = db.session.query(Thought.id, Thought.title, Thought.detail,Thought.label).filter(or_(Thought.detail.like(name), Thought.label.like(name), Thought.title.like(name))).paginate(page,per_page = 4) 
+	pagination = db.session.query(Thought.id, Thought.title, Thought.detail, Thought.label,Thought.zan, Thought.time).filter(or_(Thought.detail.like(name), Thought.label.like(name), Thought.title.like(name))).paginate(page,per_page = 4) 
 	thoughts = pagination.items
 
 
@@ -84,4 +91,50 @@ def showHead():
 
 
 
+@main.route('/zan')
+@login_required
+def zan():
+	thought_id = request.args.get("thought.id")
+	user_id = request.args.get("user.id")
+	like = Like.query.filter_by(thought_id = thought_id , user_id =user_id).first()
+	if like:
+		return "false"
+	else:
+		like = Like(thought_id = thought_id , user_id =user_id)
+		db.session.add(like)
+		thought = Thought.query.filter_by(id = thought_id ).first()
+		thought.zan+=1
+
+		return "success"
+
+@main.route('/changetitle')
+@login_required
+def changeTitle():
+	thought_id = request.args.get("thought_id")
+	thought_title = request.args.get("thought_title")
+
+	thought = Thought.query.filter_by(id = thought_id).first()
+	thought.title = thought_title
+	time=datetime.now().strftime("%y-%m-%d %H:%M:%S")
+	thought.time = time
+
+	return "success"
+
+
+
+@main.route('/changelabel')
+@login_required
+def changeLabel():
+	thought_id = request.args.get("thought_id")
+	thought_label = request.args.get("thought_label")
+	thought_detail = request.args.get("thought_detail")
+
+	thought = Thought.query.filter_by(id = thought_id).first()
+
+	thought.label = thought_label
+	thought.detail = thought_detail
+	time=datetime.now().strftime("%y-%m-%d %H:%M:%S")
+	thought.time = time
+
+	return "success"
 

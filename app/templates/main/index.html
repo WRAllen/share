@@ -14,13 +14,16 @@
 			<div class="panel panel-default card-view">
 				<div class="panel-heading">
 					<a href="{{ url_for('main.showThought',ThoughtId = x.id )}}" target="_Blank" class="sharetitle">{{x.title}}</a>
+					{% if x.label %}
+						<button class="btn  btn-primary btn-outline btn-rounded">{{x.label}}</button>
+					{% endif %}
 				</div>
 				<div class="panel-body">
 
 						<div class="ourthoughts" id="text{{x.id}}" style="width:auto; height:50px;">
-							<p>{{x.detail}}</p>
-
+							<p>{{x.detail}}</p>	
 						</div>	
+						<p>编辑于:{{x.time}}</p>	
 						<!-- 实现阅读全文的功能 -->
 						<script type="text/javascript">							
 							$("#text{{x.id}}").each(function(){
@@ -39,8 +42,34 @@
 								})
 							})							
 						</script>
-
 				</div>
+				<div class="panel-default">							
+					<button class="btn btn-success btn-anim" id="zan{{x.id}}"><i class="icon-like"></i><span class="btn-text">like</span></button>
+					<span class="counter-anim">{{x.zan}}</span>
+					&nbsp;:&nbsp;<i class="icon-like"></i>
+					<script type="text/javascript">
+						$(function(){
+							$('#zan{{x.id}}').click(function(){
+								$.ajax({
+									url:"zan",
+									data:{
+										'thought.id':'{{x.id}}',
+										'user.id':'{{current_user.id}}'
+									},
+									success:function(response){
+										if (response == 'false') {
+											alert("Sorry,您已经点过赞了")
+										}else{
+											$("#zan{{x.id}}").attr('disabled',true);
+										}
+									},
+								})
+							})
+						})
+					</script>
+					
+				</div>
+				<div class="panel-heading"></div>
 			</div>
 		</div>
 	</div>
@@ -192,30 +221,7 @@
 	}
 </style>
 
-<script type="text/javascript">
-	$(function(){
-		$('#share').click(function(){
-			$.ajax({
-				url:'sharethought',
-				method:'GET',
-				data:{
-					"user_id":'{{ current_user.id }}',
-					"detail":$("#detail").val(),
-					"title" :$("#title").val(),
-					"label":$("#label").val(),
-				},
-				success:function(response){
-					if (response == "success") {
-						window.location.reload() 
-					}else{
-						alert("网络链接失败")
-					}
 
-				}
-			})
-		})
-	})
-</script>
 
 {% endblock %}
 
