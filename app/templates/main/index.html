@@ -15,7 +15,7 @@
 				<div class="panel-heading">
 					<a href="{{ url_for('main.showThought',ThoughtId = x.id )}}" target="_Blank" class="sharetitle">{{x.title}}</a>
 					{% if x.label %}
-						<button class="btn  btn-primary btn-outline btn-rounded">{{x.label}}</button>
+						<button class="btn  btn-primary btn-outline btn-rounded" onclick="window.open('{{url_for('main.searchLabel',label = x.label )}}')">{{x.label}}</button>
 					{% endif %}
 				</div>
 				<div class="panel-body">

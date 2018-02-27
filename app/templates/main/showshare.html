@@ -46,7 +46,7 @@
 				<div class="pull-left">
 					<h5 class="panel-title txt-dark">{{thought.title}}</h5>
 					{% if thought.label %}
-						<button class="btn  btn-primary btn-outline btn-rounded">{{thought.label}}</button>						
+						<button class="btn  btn-primary btn-outline btn-rounded" onclick="window.open('{{url_for('main.searchLabel',label = thought.label )}}')">{{thought.label}}</button>						
 					{% endif %}
 					{% if thought.user_id == current_user.id %}
 						<button style="background-color: #fff; border:none;" data-toggle="modal" data-target="#label-Modal" id = "change_label"><i class="fa fa-pencil"></i></button>

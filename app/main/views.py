@@ -2,12 +2,12 @@ from . import main
 from flask_login import login_required 
 from flask import render_template, request,session
 from app import db
-from sqlalchemy.sql import func,distinct,or_
+from sqlalchemy import func,distinct,or_,desc
 from app.auth.models import *
 from flask import redirect, url_for
 from app.auth.permissioncontrol import permissionControl
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 @main.route('/')
 @login_required
@@ -19,7 +19,28 @@ def index():
 		thoughts = pagination.items
 		return render_template('main/index.html',thoughts = thoughts, pagination = pagination)
 	else:
-		return render_template('main/index.html')
+		oldtime = (datetime.now()-timedelta(days=15)).strftime("%y-%m-%d")
+		thoughts_15 = db.session.query( func.count(Thought.id).label('sum'), Thought.time ).filter( Thought.time > oldtime ).group_by( Thought.time ).all()
+		array_15 = []
+		for thought in thoughts_15:
+			dic = {}
+			dic["sum"] = thought[0]
+			dic["time"] = thought[1].strftime("%Y-%m-%d")
+			array_15.append(dic)
+
+		labels = db.session.query( func.count(Thought.id).label('sum'),Thought.label ).filter(Thought.label != "").group_by(Thought.label).order_by(desc(func.count(Thought.id).label('sum'))).limit(3)
+		array_3 = []
+		
+		for label in labels:
+			dic = {}
+			dic["value"] = label[0]
+			dic["label"] = label[1]
+			array_3.append(dic)
+
+		thoughts = db.session.query(Thought.id, Thought.title, Thought.detail, Thought.label,Thought.zan, Thought.time).order_by(desc(Thought.zan)).limit(3)
+
+
+		return render_template('data/showdata.html', array_15 = array_15, array_3 = array_3,thoughts = thoughts)
 
 @main.route('/show')
 @login_required
@@ -34,6 +55,16 @@ def show():
 
 	return render_template('main/index.html',key = key, thoughts = thoughts, pagination = pagination)
 
+@main.route('/search')
+@login_required
+def searchLabel():
+	label = request.args.get("label")
+	
+	page = request.args.get('page', 1, type=int)
+	pagination = db.session.query(Thought.id, Thought.title, Thought.detail, Thought.label,Thought.zan, Thought.time).filter(Thought.label == label).paginate(page,per_page = 4) 
+	thoughts = pagination.items
+	return render_template('main/index.html',key = label, thoughts = thoughts, pagination = pagination)
+
 
 @main.route('/sharethought')
 @login_required
@@ -43,7 +74,7 @@ def shareThought():
 	label = request.args.get("label")
 	title = request.args.get("title")
 
-	time=datetime.now().strftime("%y-%m-%d %H:%M:%S")
+	time=datetime.now().strftime("%y-%m-%d")
 	if detail == None:
 		detail = Null
 	if label == None:

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}欢迎{{current_user.username}}{% endblock %}
+{% block css %}
+{% include "data/css.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+	<div class="col-lg-8">
+		<div class="panel panel-default card-view">
+			<div class="panel-heading">
+				<div class="pull-left">
+					<h6 class="panel-title txt-dark">最近15天大家分享的想法</h6>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="panel-wrapper collapse in">
+				<div class="panel-body">
+					<div id="morris_area_chart" class="morris-chart"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-4">
+		<div class="panel panel-default card-view">
+			<div class="panel-heading">
+				<div class="pull-left">
+					<h6 class="panel-title txt-dark">前三名的想法标签</h6>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="panel-wrapper collapse in">
+				<div class="panel-body">
+					<div id="morris_donut_chart" class="morris-chart donut-chart"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% if thoughts %}
+	{% for x in thoughts %}
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="panel panel-default card-view">
+				<div class="panel-heading">
+					<a href="{{ url_for('main.showThought',ThoughtId = x.id )}}" target="_Blank" class="sharetitle">{{x.title}}</a>
+					{% if x.label %}
+						<button class="btn  btn-primary btn-outline btn-rounded" onclick="window.open('{{url_for('main.searchLabel',label = x.label )}}')">{{x.label}}</button>
+					{% endif %}
+				</div>
+				<div class="panel-body">
+
+						<div class="ourthoughts" id="text{{x.id}}" style="width:auto; height:50px;">
+							<p>{{x.detail}}</p>	
+						</div>	
+						<p>编辑于:{{x.time}}</p>	
+						<!-- 实现阅读全文的功能 -->
+						<script type="text/javascript">							
+							$("#text{{x.id}}").each(function(){
+								var maxwidth=70;//设置最多显示的字数
+								var text=$(this).text();
+								var obj = document.getElementById('text{{x.id}}');
+								var total_height =  obj.scrollHeight;//文章总高度
+
+								if($(this).text().length>maxwidth){
+								    $(this).text($(this).text().substring(0,maxwidth));//截取长度
+								    $(this).html($(this).html()+"..."+"<button class='showall' style='border:0;'>阅读全文</button>");//如果字数超过最大字数，超出部分用...代替								   
+								};
+								$(this).find("button").click(function(){
+									$(this).parent().height(total_height)
+									$(this).parent().text(text);
+								})
+							})							
+						</script>
+				</div>
+				<div class="panel-default">							
+					<button class="btn btn-success btn-anim" id="zan{{x.id}}"><i class="icon-like"></i><span class="btn-text">like</span></button>
+					<span class="counter-anim">{{x.zan}}</span>
+					&nbsp;:&nbsp;<i class="icon-like"></i>
+					<script type="text/javascript">
+						$(function(){
+							$('#zan{{x.id}}').click(function(){
+								$.ajax({
+									url:"zan",
+									data:{
+										'thought.id':'{{x.id}}',
+										'user.id':'{{current_user.id}}'
+									},
+									success:function(response){
+										if (response == 'false') {
+											alert("Sorry,您已经点过赞了")
+										}else{
+											$("#zan{{x.id}}").attr('disabled',true);
+										}
+									},
+								})
+							})
+						})
+					</script>
+					
+				</div>
+				<div class="panel-heading"></div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+{% endif %}
+
+<script type="text/javascript">
+	$(function(){
+		// 15天曲线图
+		Morris.Area({
+			element: 'morris_area_chart',
+			data: {{array_15 | safe }},
+			xkey: 'time',
+			ykeys: ['sum'],
+			labels: ['总数'],
+			pointSize: 0,
+			pointStrokeColors:['#2879ff'],
+			behaveLikeLine: true,
+			gridLineColor: '#878787',
+			lineWidth: 0,
+			smooth: true,
+			hideHover: 'auto',
+			lineColors: ['#2879ff'],
+			resize: true,
+			gridTextColor:'#878787',
+			gridTextFamily:"Roboto",
+		});
+		// 前三名标签
+		Morris.Donut({
+			element: 'morris_donut_chart',
+			data: {{array_3 | safe }},
+			colors: ['#2879ff', '#e91e63', '#fec107'],
+			resize: true,
+			labelColor: '#878787',
+		});
+
+	})
+
+</script>
+<style type="text/css">
+	.showall{
+		background-color: #fff;
+	}
+</style>
+
+{% endblock %}
+
+
+{% block js %}
+{% include "data/js.html" %}
+{% endblock %}

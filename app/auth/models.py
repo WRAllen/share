@@ -60,7 +60,7 @@ class Thought(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     label = db.Column(db.String(20))
     style = db.Column(db.Integer)
-    time = db.Column(db.DateTime)
+    time = db.Column(db.Date)
     zan = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     title = db.Column(db.String(64),nullable = False)
