@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import UserMixin,current_user
 from .. import db, login_manager
 from app.models import BaseTable,tab_relation
@@ -74,7 +75,7 @@ class Like(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True) 
     thought_id = db.Column(db.Integer, db.ForeignKey('thought.id'))
-    author_id = db.Column(db.Integer, db.ForeignKey('thought.user_id'))
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     answer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     answer = db.Column(db.Text)
     time = db.Column(db.DateTime)
@@ -89,7 +90,7 @@ class User(UserMixin, BaseTable):
     tel = db.Column(db.String(13))
     ip = db.Column(db.String(15))
     entry = db.Column(db.Boolean,default=True)
-    last_time = db.Column(db.DateTime)
+    last_time = db.Column(db.Date)
     sex = db.Column(db.Boolean)
     birthday = db.Column(db.Date)
     imgurl = db.Column(db.String(128))
@@ -121,6 +122,31 @@ class User(UserMixin, BaseTable):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+
+    def generate_confirmation_token(self,expiration=3600):
+        '''
+            加密确认码
+        '''
+        s = Serializer(current_app.config['SECRET_KEY'],expiration)
+        return s.dumps({'confirm':self.id})
+
+    def confirm(self,token):
+        '''
+            解密确认码
+        '''
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data=s.loads(token)
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        self.confirmed = True
+        db.session.add(self)
+        return True 
+
+
 
     def user_can(self):
         array_role_url=[]

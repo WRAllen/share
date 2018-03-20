@@ -1,0 +1,5 @@
+亲爱的 {{ user.username }},
+欢迎你注册share账号
+为了验证你的账号,亲点击下面路径:
+{{ url_for('auth.confirm', token=token, _external=True) }}
+祝你分享愉快!O(∩_∩)O~

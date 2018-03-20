@@ -2,12 +2,15 @@
 from flask import render_template, redirect, request, url_for, flash,make_response,session
 from flask_login import login_user, logout_user, login_required 
 from flask_login import current_user
-from app.auth.models import User,Role,Url,Menu,Perm
+from app.auth.models import *
 from . import auth
 from app.auth.permissioncontrol import permissionControl
 from .forms import LoginForm,RegistrationForm
 from .. import db
 import json
+from datetime import datetime
+from emailTest import send_email
+# 导入发送email的py文件
 from .tips import VIE
 
 
@@ -18,8 +21,12 @@ def login():
         user = User.query.filter_by(email=form.email.data).first() 
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+
             last_ip = request.remote_addr
+            last_time = datetime.now().strftime("%y-%m-%d ")
+
             if user.ip_check(last_ip):
+                user.last_time = last_time
                 return make_response(redirect(request.args.get('next') or url_for('main.index')))
             else:
                 return VIE['ip_error']
@@ -47,11 +54,38 @@ def register():
         user.imgurl='/static/dist/img/user1.png'
         ###给角色默认的头像
         db.session.add(user)
+
+
+        token = user.generate_confirmation_token()
+
+        send_email(user.email,'确认你的账户','auth/email/confirm',user,token)
+
+        flash('账号验证已发送邮箱！')
+        
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html',form=form)
 
 
+
+
+#需要带着token的账户进行登录一次才可以完成验证   
+@auth.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    
+    if current_user.confirmed:
+
+        return redirect(url_for('main.index'))
+
+    if current_user.confirm(token):
+
+        flash('你已经确认了你的账户，谢谢')
+
+    else:
+        flash('这个确认链接不可用，或已超时')
+
+    return redirect(url_for('main.index'))
 
 @auth.before_app_request
 def before_request():
@@ -65,16 +99,33 @@ def before_request():
 
         return redirect(url_for('auth.unconfirmed'))
 
-
+#尚未确认账户
 @auth.route('/unconfirmed')
 def unconfirmed():
     '''
-        尚未确认的账户需要激活
+        判断数据库的confirmed字段是否为True，如果为False(0),就跳转到提示确认账户界面
     '''
-    if current_user.confirmed:
+    if current_user.is_anonymous or current_user.confirmed:
+
         return redirect(url_for('main.index'))
 
     return render_template('auth/unconfirmed.html')
+
+
+
+#重新发送账户确认邮件
+@auth.route('/rendemail')
+@login_required
+def resend_confirmation():
+
+    token = current_user.generate_confirmation_token()
+
+    send_email(current_user.email, '确认你的账户',
+               'auth/email/confirm', current_user, token)
+
+    flash("已经重新发送一份邮件到你的邮箱")
+    return redirect(url_for('auth.unconfirmed'))
+
 
 
 
@@ -123,6 +174,42 @@ def roleManage():
         
 
     return render_template('auth/rolemanage.html',allrole=allrole,allurl=allurl,allmenu=allmenu,firstrole=firstrole)
+
+
+
+@auth.route("/thoughtmanage")
+@permissionControl('auth.thoughtManage')
+@login_required 
+def thoughtManage():
+    '''
+    用于管用户分享的想法
+    '''
+    allthought = db.session.query(Thought.id, Thought.title, Thought.label, Thought.detail, Thought.time, User.username, User.last_time).select_from(Thought, User).filter(Thought.user_id == User.id ).all()
+
+
+    return render_template('auth/thoughtmanage.html',allthought = allthought )
+
+
+@auth.route("/delthought")
+@login_required
+def delThought():
+    thought_id = request.args.get("thought_id")
+
+    allcomment = Comment.query.filter_by(thought_id = thought_id ).all()
+    if allcomment:
+        for x in allcomment:
+            db.session.delete(x)
+
+    alllike = Like.query.filter_by(thought_id = thought_id ).all()
+    if alllike:
+        for x2 in alllike:
+            db.session.delete(x2)
+
+    thought = Thought.query.filter_by(id = thought_id ).first()
+    db.session.delete(thought)
+
+    return "success"
+
 
 
 

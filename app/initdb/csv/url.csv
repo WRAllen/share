@@ -1,3 +1,4 @@
 1,角色管理,auth.roleManage
 2,资源管理,auth.urlManage
 3,用户管理,auth.userManage
+4,想法管理,auth.thoughtManage

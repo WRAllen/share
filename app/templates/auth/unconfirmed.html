@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		<title>toloog</title>
+		<title>享我所想</title>
 		<meta name="description" content="Hound is a Dashboard & Admin Site Responsive Template by hencework." />
 		<meta name="keywords" content="admin, admin dashboard, admin template, cms, crm, Hound Admin, Houndadmin, premium admin templates, responsive admin, sass, panel, software, ui, visualization, web app, application" />
 		<meta name="author" content="hencework"/>
@@ -32,7 +32,7 @@
 				<div class="sp-logo-wrap pull-left">
 					<a href="index.html">
 						<img class="brand-img mr-10" src="../../static/dist/img/logo.png" alt="brand"/>
-						<span class="brand-text">Toloog</span>
+						<span class="brand-text">Share</span>
 					</a>
 				</div>
 				<div class="clearfix"></div>
@@ -61,11 +61,18 @@
 									<div class="col-sm-12 col-xs-12">
 											
 										<div class="form-wrap">
-											<h2>
-										        您好, {{ current_user.username }}!
-										    </h2>
-										    <h5>您的账号还没进行激活,请联系toloog公司技术人员进行激活</h5>
-										    <h5>祝你生活工作愉快O(∩_∩)O~</h5>
+											<h1>
+										        你好, {{ current_user.username }}!
+										    </h1>
+										    <h3>你还没有确认你的帐号.</h3>
+										    <p>
+										        在您访问这个站点之前，您需要确认您的帐户。
+										        检查你的收件箱，你应该收到一封带有确认链接的电子邮件。
+										    </p>
+										    <p>
+										        需要另一个确认电子邮件吗?
+										        <a href="{{url_for('auth.resend_confirmation')}}">点击这里</a>
+										    </p>
 										</div>
 									</div>	
 								</div>
