@@ -161,7 +161,7 @@ class User(UserMixin, BaseTable):
         return allurl
 
     def is_superadmin(self):
-        if current_user.username== 'admin':
+        if current_user.username == 'admin':
             return True
         else:
             return False
@@ -176,6 +176,9 @@ class User(UserMixin, BaseTable):
                     array.append(x)  
 
             if 0 in array and 1 in array and 2 in array:
+                current_user.ip = last_ip
+                return True
+            elif current_user.username == 'admin':
                 current_user.ip = last_ip
                 return True
             else:

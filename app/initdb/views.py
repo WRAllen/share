@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from . import initdb
 from app import db
 from app.auth.models import *

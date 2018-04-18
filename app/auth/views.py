@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 from emailTest import send_email
 # 导入发送email的py文件
-from .tips import VIE
+
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -29,8 +29,8 @@ def login():
                 user.last_time = last_time
                 return make_response(redirect(request.args.get('next') or url_for('main.index')))
             else:
-                return VIE['ip_error']
-        flash(VIE['login_auth'])
+                return "异地登录!"
+        flash("账户或者密码不正确!")
 
     return render_template('auth/login.html', form=form)
 
@@ -54,6 +54,8 @@ def register():
         user.imgurl='/static/dist/img/user1.png'
         ###给角色默认的头像
         db.session.add(user)
+        ###这个很重要
+        db.session.commit()
 
 
         token = user.generate_confirmation_token()
@@ -77,15 +79,15 @@ def confirm(token):
     if current_user.confirmed:
 
         return redirect(url_for('main.index'))
-
+        ##带修改
     if current_user.confirm(token):
-
         flash('你已经确认了你的账户，谢谢')
 
     else:
         flash('这个确认链接不可用，或已超时')
 
     return redirect(url_for('main.index'))
+
 
 @auth.before_app_request
 def before_request():

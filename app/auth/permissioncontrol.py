@@ -1,9 +1,10 @@
+# -*- coding:utf-8 -*-
 from app.auth.models import Role,Url,User
 from flask_login import  current_user
 from .. import db
 from functools import wraps
 from flask import render_template
-from .tips import PER
+
 
 def permissionControl(url_func):
     def decorator(f):
@@ -15,7 +16,7 @@ def permissionControl(url_func):
                 for url in role.urls:
                     array.append(url.url_func)
             if url_func not in array:
-                return PER['url_func']
+                return "你没有这个权限访问该页面"
             return f(*args, **kwargs)
         return decorated_function
     return decorator

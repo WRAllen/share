@@ -91,11 +91,10 @@ def shareThought():
 def showThought(ThoughtId):
 	thought = Thought.query.filter_by(id=ThoughtId).first()
 	author = User.query.filter_by(id=thought.user_id).first()
-	sharenumber = db.session.query(func.count( Thought.id) ).filter(Thought.user_id == author.id).first()
+	count = db.session.query(func.count( Thought.id), func.sum(Thought.zan)).filter(Thought.user_id == author.id).first()
 	comments = Comment.query.filter_by(thought_id = thought.id).order_by('time').all()
 
-
-	return render_template('main/showshare.html',thought = thought, author = author, comments = comments, sharenumber = sharenumber[0])
+	return render_template('main/showshare.html',thought = thought, author = author, comments = comments, sharenumber = count[0], zan = count[1])
 
 
 @main.route('/commit')

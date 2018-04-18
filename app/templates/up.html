@@ -230,7 +230,7 @@
                 method:'GET',
                 data:{
                     "user_id":'{{ current_user.id }}',
-                    "detail":$("#detail").val(),
+                    "detail":$("#detail").val().replace(/[\r\n]/g,"<br>"),
                     "title" :$("#title").val(),
                     "label":$("#label").val(),
                 },

@@ -25,9 +25,13 @@
 						</div>	
 						<div class="social-info">
 							<div class="row">
-								<div class="col-xs-12 text-center">
-									<span class="counts block head-font"><span class="counter-anim">{{sharenumber}}</span></span>
+								<div class="col-xs-6 text-center">
+									<a href="{{url_for('main.index', user_id = author.id )}}"><span class="counts block head-font"><span class="counter-anim">{{sharenumber}}</span></span></a>
 									<span class="counts-text block">分享的想法</span>
+								</div>
+								<div class="col-xs-6 text-center">
+									<span class="counts block head-font"><span class="counter-anim">{{zan}}</span></span>
+									<span class="counts-text block">被赞次数</span>
 								</div>
 							</div>						
 						</div>
@@ -91,7 +95,7 @@
 						$.emoticons({
 							'activeCls':'trigger-active'
 						},function(api){							
-						$('#thought_detail').html(api.format('{{thought.detail}}<br>编辑于:{{thought.time}}'));												
+						$('#thought_detail').html(api.format('{{thought.detail|safe}}<br>编辑于:{{thought.time}}'));												
 						});
 					</script>
 				</div>
@@ -409,7 +413,7 @@
 
 		$('#label-Modal-commit').click(function(){
 			var new_label = $("#label-Modal-label").val();
-			var new_detail = $("#label-Modal-detail").val();
+			var new_detail = $("#label-Modal-detail").val().replace(/[\r\n]/g,"<br>");
 			$.ajax({
 				url:"/changelabel",
 				data:{
