@@ -52,13 +52,19 @@
 					{% if thought.label %}
 						<button class="btn  btn-primary btn-outline btn-rounded" onclick="window.open('{{url_for('main.searchLabel',label = thought.label )}}')">{{thought.label}}</button>						
 					{% endif %}
-					{% if thought.user_id == current_user.id %}
+					{% if thought.user_id == current_user.id %}						
+						{% if current_user.perm_check(3) %}
 						<button style="background-color: #fff; border:none;" data-toggle="modal" data-target="#label-Modal" id = "change_label"><i class="fa fa-pencil"></i></button>						
+						{% endif %}						
 					{% endif %}
 				</div>
-					{% if thought.user_id == current_user.id %}
-						<button style="background-color: #fff; border:none;" data-toggle="modal" data-target="#title-Modal" id = "change_title"><i class="fa fa-pencil"></i></button>
-						<button style="background-color: #fff; border:none;" id ="delete"><i class="icon-trash"></i></button></td>
+					{% if thought.user_id == current_user.id %}						
+						{% if current_user.perm_check(3) %}
+							<button style="background-color: #fff; border:none;" data-toggle="modal" data-target="#title-Modal" id = "change_title"><i class="fa fa-pencil"></i></button>
+						{% endif %}
+						{% if current_user.perm_check(4) %}
+							<button style="background-color: #fff; border:none;" id ="delete"><i class="icon-trash"></i></button></td>
+						{% endif %}											
 						<script type="text/javascript">
 							$(function(){
 								$('#delete').click(function(){

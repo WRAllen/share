@@ -10,6 +10,7 @@ from .. import db
 import json
 from datetime import datetime
 from emailTest import send_email
+from sqlalchemy import or_
 # 导入发送email的py文件
 
 
@@ -52,6 +53,9 @@ def register():
         user = User(email=form.email.data,username=form.username.data,password=form.password.data)
 
         user.imgurl='/static/dist/img/user1.png'
+        perms = db.session.query(Perm).filter(or_(Perm.id == 3, Perm.id == 2)).all()
+        user.perms=perms
+
         ###给角色默认的头像
         db.session.add(user)
         ###这个很重要

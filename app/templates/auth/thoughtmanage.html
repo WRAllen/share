@@ -46,11 +46,11 @@
 										<td>{{x.time}}</td>
 										<td>{{x.last_time}}</td>
 										<td>
-										{% for perm in current_user.perms %}
-											{% if perm.id == 4 %}
-												<button id ="thought{{x.id}}" class="btn btn-info btn-icon-anim btn-circle"><i class="icon-trash"></i></button>
-											{% endif %}
-										{% endfor %}
+										
+										{% if current_user.perm_check(4) %}
+											<button id ="thought{{x.id}}" class="btn btn-info btn-icon-anim btn-circle"><i class="icon-trash"></i></button>
+										{% endif %}
+										
 										</td>
 										<script type="text/javascript">
 											$(function(){
@@ -62,7 +62,7 @@
 																'thought_id' : "{{x.id}}",
 															},
 															success :function(response){
-																// window.location.reload();
+																window.location.reload();
 															},
 														})
 													}

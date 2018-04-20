@@ -16,7 +16,7 @@ def permissionControl(url_func):
                 for url in role.urls:
                     array.append(url.url_func)
             if url_func not in array:
-                return "你没有这个权限访问该页面"
+                return render_template('auth/permerror.html')
             return f(*args, **kwargs)
         return decorated_function
     return decorator

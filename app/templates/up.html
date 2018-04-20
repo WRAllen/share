@@ -22,10 +22,13 @@
         </div>
     </form>
 
-    <!-- 分享问题按钮 -->
-    <button type="button" class="btn btn-success btn-anim" data-toggle="modal" data-target="#myModal" style="margin-top: 11px;margin-left: 5px;"><i class="fa fa-pencil"></i><span class="btn-text">share</span></button>
+    {% if current_user.perm_check(2) %}
+        <!-- 分享问题按钮 -->
+        <button type="button" class="btn btn-success btn-anim" data-toggle="modal" data-target="#myModal" style="margin-top: 11px;margin-left: 5px;"><i class="fa fa-pencil"></i><span class="btn-text">share</span></button>
+    {% endif %}
 
-
+    
+    
     <div id="mobile_only_nav" class="mobile-only-nav pull-right">
         <ul class="nav navbar-right top-nav pull-right">
             <!-- 用户区域 -->

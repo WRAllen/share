@@ -187,7 +187,12 @@ class User(UserMixin, BaseTable):
             current_user.ip = last_ip
             return True
 
-
+    def perm_check(self,permid):
+        perm = Perm.query.filter_by(id = permid).first()
+        if perm in current_user.perms:
+            return True
+        else:
+            return False
 
 @login_manager.user_loader
 def load_user(user_uid):
